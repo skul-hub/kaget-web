@@ -77,7 +77,7 @@ export default async function handler(req, res) {
 
     const orderId = makeOrderId(productType.toUpperCase());
 
-    // Save order to Supabase
+    // Save order to Supabase (pending)
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!supabaseUrl || !supabaseKey) {
@@ -88,9 +88,9 @@ export default async function handler(req, res) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "apikey": supabaseKey,
-        "Authorization": `Bearer ${supabaseKey}`,
-        "Prefer": "return=representation",
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        Prefer: "return=representation",
       },
       body: JSON.stringify([{
         order_id: orderId,
