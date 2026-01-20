@@ -6,178 +6,197 @@
   <title>SKULLHOSTING</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
+
 <body>
-
-<!-- Background effects -->
-<div class="bg">
-  <div class="gridNoise"></div>
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-</div>
-
-<header class="topbar" id="topbar">
-  <div class="wrap topbarInner">
-    <a class="brand" href="#home">
-      <span class="bolt">⚡</span>
-      <span>SKULLHOSTING</span>
-    </a>
-
-    <nav class="nav" id="nav">
-      <a href="#home">Home</a>
-      <a href="#panel">Panel</a>
-      <a href="#vps">VPS</a>
-      <a href="#bot">Sewa Bot</a>
-      <a href="#history">History</a>
-      <a href="#contact">Kontak</a>
-    </nav>
-
-    <button class="navToggle" id="navToggle" aria-label="Menu">☰</button>
-  </div>
-</header>
-
-<main class="wrap" id="home">
-  <section class="hero">
-    <div class="heroText">
-      <h1>Panel Hosting, VPS & Sewa Bot Terbaik</h1>
-      <p class="muted">
-        Panel hosting modern, VPS berkualitas tinggi, dan sewa bot canggih.
-        Server stabil 24/7 dengan performa maksimal dan harga terjangkau.
-      </p>
-
-      <div class="heroCtas">
-        <a class="btn primary" href="#panel">Panel Hosting</a>
-        <a class="btn ghost" href="#vps">Virtual Private Server</a>
-        <a class="btn warm" href="#bot">Sewa Bot</a>
-      </div>
-
-      <div class="heroBadges">
-        <div class="pill">⚡ Fast Setup</div>
-        <div class="pill">🛡️ Garansi 30 Hari</div>
-        <div class="pill">💬 Support 24/7</div>
-      </div>
-    </div>
-
-    <div class="heroCard">
-      <div class="miniTitle">Status Pembelian</div>
-      <div class="miniMuted">Pembayaran otomatis via QRIS Pakasir</div>
-      <div class="miniList">
-        <div class="miniItem"><span>Order</span><b>pending</b></div>
-        <div class="miniItem"><span>Bayar</span><b>paid</b></div>
-        <div class="miniItem"><span>Selesai</span><b>done</b></div>
-      </div>
-      <div class="miniHint">Admin konfirmasi lewat bot Telegram.</div>
-    </div>
-  </section>
-
-  <section id="panel" class="section">
-    <div class="sectionHead">
-      <div>
-        <h2>Paket Panel Biasa</h2>
-        <p class="muted">Garansi 30 hari • Support 24/7 • Server Private</p>
-      </div>
-    </div>
-    <div id="panelGrid" class="grid"></div>
-  </section>
-
-  <section id="vps" class="section">
-    <div class="sectionHead">
-      <div>
-        <h2>Paket VPS Server</h2>
-        <p class="muted">Pembelian VPS</p>
-      </div>
-    </div>
-    <div id="vpsGrid" class="grid"></div>
-  </section>
-
-  <section id="bot" class="section">
-    <div class="sectionHead">
-      <div>
-        <h2>Sewa Bot</h2>
-        <p class="muted">Sewa Bot</p>
-      </div>
-    </div>
-    <div id="botGrid" class="grid"></div>
-  </section>
-
-  <section id="history" class="section">
-    <div class="sectionHead">
-      <div>
-        <h2>History Pembelian</h2>
-        <p class="muted">Menampilkan semua history order (admin view).</p>
-      </div>
-      <button class="btn ghost" id="refreshHistory">Refresh</button>
-    </div>
-
-    <div class="cardShell">
-      <div class="muted" id="historyInfo">Memuat...</div>
-      <div id="historyTableWrap" style="margin-top:12px;"></div>
-    </div>
-  </section>
-
-  <section id="contact" class="section">
-    <div class="sectionHead">
-      <div>
-        <h2>Kontak</h2>
-        <p class="muted">Hubungi kami via WhatsApp atau Telegram.</p>
-      </div>
-    </div>
-
-    <div class="contactRow">
-      <a class="btn primary" target="_blank" href="https://wa.me/6285692038079">WhatsApp</a>
-      <a class="btn ghost" target="_blank" href="https://t.me/skullhosting">Telegram</a>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="muted">© <span id="year"></span> SKULLHOSTING — All rights reserved.</div>
-  </footer>
-</main>
-
-<!-- Checkout Modal -->
-<div id="checkoutOverlay" class="overlay hidden"></div>
-
-<div id="checkoutModal" class="modal hidden" role="dialog" aria-modal="true">
-  <div class="modalHead">
-    <div>
-      <div class="modalTitle" id="modalTitle">Checkout</div>
-      <div class="muted" id="modalSubtitle"></div>
-    </div>
-    <button class="iconBtn" id="closeModal" type="button">✕</button>
+  <!-- Background effects -->
+  <div class="bg">
+    <div class="gridNoise"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
   </div>
 
-  <form id="checkoutForm" class="modalBody">
-    <div class="row hidden" id="rowUsername">
-      <label>Username Panel</label>
-      <input type="text" name="username" placeholder="contoh: skulluser" />
+  <header class="topbar">
+    <div class="wrap topbarInner">
+      <a class="brand" href="#home">
+        <span class="bolt">⚡</span>
+        <span>SKULLHOSTING</span>
+      </a>
+
+      <nav class="nav" id="nav">
+        <a href="#home">Home</a>
+        <a href="#panel">Panel</a>
+        <a href="#vps">VPS</a>
+        <a href="#bot">Sewa Bot</a>
+        <a href="#history">History</a>
+        <a href="#contact">Kontak</a>
+      </nav>
+
+      <button class="navToggle" id="navToggle" aria-label="Menu">☰</button>
+    </div>
+  </header>
+
+  <main class="wrap" id="home">
+    <section class="hero">
+      <div class="heroText">
+        <h1>Panel Hosting, VPS & Sewa Bot Terbaik</h1>
+        <p class="muted">
+          Panel hosting modern, VPS berkualitas tinggi, dan sewa bot canggih.
+          Server stabil 24/7 dengan performa maksimal dan harga terjangkau.
+        </p>
+
+        <div class="heroCtas">
+          <a class="btn primary" href="#panel">Panel Hosting</a>
+          <a class="btn ghost" href="#vps">Virtual Private Server</a>
+          <a class="btn warm" href="#bot">Sewa Bot</a>
+        </div>
+
+        <div class="heroBadges">
+          <div class="pill">⚡ Fast Setup</div>
+          <div class="pill">🛡️ Garansi 30 Hari</div>
+          <div class="pill">💬 Support 24/7</div>
+        </div>
+      </div>
+
+      <div class="heroCard">
+        <div>
+          <div class="miniTitle">Status Pembelian</div>
+          <div class="miniMuted">Pembayaran otomatis via QRIS Pakasir</div>
+          <div class="miniList">
+            <div class="miniItem"><span>Order</span><b>pending</b></div>
+            <div class="miniItem"><span>Bayar</span><b>paid</b></div>
+            <div class="miniItem"><span>Selesai</span><b>done</b></div>
+          </div>
+        </div>
+        <div class="miniHint">Admin konfirmasi lewat bot Telegram.</div>
+      </div>
+    </section>
+
+    <section id="panel" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Paket Panel Biasa</h2>
+          <p class="muted">Garansi 30 hari • Support 24/7 • Server Private</p>
+        </div>
+      </div>
+      <div id="panelGrid" class="grid"></div>
+    </section>
+
+    <section id="vps" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Paket VPS Server</h2>
+          <p class="muted">Pembelian VPS</p>
+        </div>
+      </div>
+      <div id="vpsGrid" class="grid"></div>
+    </section>
+
+    <section id="bot" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Sewa Bot</h2>
+          <p class="muted">Sewa Bot</p>
+        </div>
+      </div>
+      <div id="botGrid" class="grid"></div>
+    </section>
+
+    <section id="history" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>History Pembelian</h2>
+          <p class="muted">User: cek history berdasarkan email. Admin: semua order (pakai key).</p>
+        </div>
+        <button class="btn ghost" id="refreshHistory" type="button">Refresh</button>
+      </div>
+
+      <!-- USER HISTORY (EMAIL) -->
+      <div class="cardShell" style="margin-top:14px">
+        <div class="miniTitle">History Saya (Email)</div>
+        <div class="muted small">Masukkan email yang sama seperti saat pembelian.</div>
+
+        <div class="historyBox">
+          <input id="hisEmailOnly" type="email" placeholder="contoh: emailkamu@gmail.com" />
+          <button class="btn primary" id="btnHistoryEmail" type="button">Cek History</button>
+        </div>
+
+        <div class="muted" id="historyEmailInfo" style="margin-top:12px;"></div>
+        <div id="historyEmailWrap" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- ADMIN HISTORY (ALL) -->
+      <div class="cardShell" style="margin-top:14px" id="adminShell">
+        <div class="miniTitle">History Admin (Semua Order)</div>
+        <div class="muted small">Muncul hanya kalau URL ada <b>?key=ADMIN_KEY</b>.</div>
+
+        <div class="muted" id="historyInfo" style="margin-top:12px;">Memuat...</div>
+        <div id="historyTableWrap" style="margin-top:12px;"></div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Kontak</h2>
+          <p class="muted">Hubungi kami via WhatsApp atau Telegram.</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <a class="btn primary" target="_blank" href="https://wa.me/6285692038079">WhatsApp</a>
+        <a class="btn ghost" target="_blank" href="https://t.me/skullhosting">Telegram</a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="muted">© <span id="year"></span> SKULLHOSTING — All rights reserved.</div>
+    </footer>
+  </main>
+
+  <!-- Checkout Modal -->
+  <div id="checkoutOverlay" class="overlay hidden"></div>
+
+  <div id="checkoutModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modalHead">
+      <div>
+        <div class="modalTitle" id="modalTitle">Checkout</div>
+        <div class="muted" id="modalSubtitle"></div>
+      </div>
+      <button class="iconBtn" id="closeModal" type="button">✕</button>
     </div>
 
-    <div class="row hidden" id="rowEmail">
-      <label>Email Aktif</label>
-      <input type="email" name="email" placeholder="contoh: emailkamu@gmail.com" />
-    </div>
+    <form id="checkoutForm" class="modalBody">
+      <div class="row hidden" id="rowUsername">
+        <label>Username Panel</label>
+        <input type="text" name="username" placeholder="contoh: skulluser" />
+      </div>
 
-    <div class="row hidden" id="rowPhone">
-      <label>Nomor Telepon</label>
-      <input type="text" name="phone" placeholder="contoh: 628xxxxxxxxxx" />
-    </div>
+      <div class="row hidden" id="rowEmail">
+        <label>Email Aktif</label>
+        <input type="email" name="email" placeholder="contoh: emailkamu@gmail.com" />
+      </div>
 
-    <div class="summary">
-      <div><b>Paket:</b> <span id="sumPackage">-</span></div>
-      <div><b>Harga:</b> <span id="sumPrice">-</span></div>
-      <div class="muted small">Lanjutkan untuk pembayaran QRIS (Pakasir).</div>
-    </div>
+      <div class="row hidden" id="rowPhone">
+        <label>Nomor Telepon</label>
+        <input type="text" name="phone" placeholder="contoh: 628xxxxxxxxxx" />
+      </div>
 
-    <div class="actions">
-      <button type="button" class="btn ghost" id="cancelBtn">Batal</button>
-      <button type="submit" class="btn primary" id="payBtn">Bayar QRIS</button>
-    </div>
+      <div class="summary">
+        <div><b>Paket:</b> <span id="sumPackage">-</span></div>
+        <div><b>Harga:</b> <span id="sumPrice">-</span></div>
+        <div class="muted small">Lanjutkan untuk pembayaran QRIS (Pakasir).</div>
+      </div>
 
-    <div class="muted small" id="errorBox" style="margin-top:10px;color:#ffb4b4;"></div>
-  </form>
-</div>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="cancelBtn">Batal</button>
+        <button type="submit" class="btn primary" id="payBtn">Bayar QRIS</button>
+      </div>
 
-<script src="script.js"></script>
+      <div class="muted small" id="errorBox" style="margin-top:10px;color:#ffb4b4;"></div>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
-
