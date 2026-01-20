@@ -15,6 +15,7 @@
       <a href="#panel">Panel</a>
       <a href="#vps">VPS</a>
       <a href="#bot">Sewa Bot</a>
+      <a href="#history">History</a>
       <a href="#contact">Kontak</a>
     </nav>
   </div>
@@ -37,6 +38,21 @@
     <h2>Sewa Bot</h2>
     <p class="muted">Sewa bot: isi nomor telepon saja lalu QRIS otomatis</p>
     <div id="botGrid" class="grid"></div>
+  </section>
+
+  <section id="history" class="section">
+    <h2>History Pembelian</h2>
+    <p class="muted">Masukkan Email / Username Panel / Nomor Telepon untuk melihat status order.</p>
+
+    <div class="historyBox">
+      <input id="hisEmail" type="email" placeholder="Email (untuk VPS / Panel)" />
+      <input id="hisUsername" type="text" placeholder="Username Panel (untuk Panel)" />
+      <input id="hisPhone" type="text" placeholder="Nomor Telepon (untuk Sewa Bot)" />
+      <button class="btn primary" id="btnHistory" type="button">Cek History</button>
+    </div>
+
+    <div id="historyResult" class="muted" style="margin-top:12px;"></div>
+    <div id="historyTableWrap" style="margin-top:12px;"></div>
   </section>
 
   <section id="contact" class="section">
@@ -79,6 +95,7 @@
     <div class="summary">
       <div><b>Paket:</b> <span id="sumPackage">-</span></div>
       <div><b>Harga:</b> <span id="sumPrice">-</span></div>
+      <div class="muted small" style="margin-top:6px;">Status: pending → paid → done (admin)</div>
     </div>
 
     <div class="actions">
