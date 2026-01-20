@@ -215,34 +215,106 @@ form?.addEventListener("submit", async (e) => {
   }
 });
 
-// ===== History (show all, admin view) =====
-const historyInfo = $("#historyInfo");
-const historyTableWrap = $("#historyTableWrap");
-const refreshHistory = $("#refreshHistory");
-
+// ===== History Helpers =====
 function statusBadge(s){
   const st = String(s || "pending").toLowerCase();
   return `<span class="badge ${st}">${st}</span>`;
 }
 
-async function loadHistory(){
-  if (historyInfo) historyInfo.textContent = "Memuat history...";
-  if (historyTableWrap) historyTableWrap.innerHTML = "";
+// ===== USER HISTORY by EMAIL =====
+const hisEmailOnly = $("#hisEmailOnly");
+const btnHistoryEmail = $("#btnHistoryEmail");
+const historyEmailInfo = $("#historyEmailInfo");
+const historyEmailWrap = $("#historyEmailWrap");
 
-  try{
-    const key = new URLSearchParams(location.search).get("key") || "";
-    const url = `/api/get-orders-all${key ? `?key=${encodeURIComponent(key)}` : ""}`;
+btnHistoryEmail?.addEventListener("click", async () => {
+  historyEmailInfo.textContent = "";
+  historyEmailWrap.innerHTML = "";
 
-    const resp = await fetch(url);
+  const email = (hisEmailOnly.value || "").trim().toLowerCase();
+  if (!email) {
+    historyEmailInfo.textContent = "Masukkan email dulu.";
+    return;
+  }
+
+  try {
+    const resp = await fetch(`/api/get-orders-by-email?email=${encodeURIComponent(email)}`);
     const data = await resp.json().catch(() => ({}));
 
-    if(!resp.ok || !data.ok){
-      if (historyInfo) historyInfo.textContent = data.error || "Gagal load history.";
+    if (!resp.ok || !data.ok) {
+      historyEmailInfo.textContent = data.error || "Gagal ambil history.";
       return;
     }
 
     const rows = data.data || [];
-    if (historyInfo) historyInfo.textContent = `Menampilkan ${rows.length} order terbaru.`;
+    if (!rows.length) {
+      historyEmailInfo.textContent = "Belum ada history untuk email ini.";
+      return;
+    }
+
+    historyEmailInfo.textContent = `Ditemukan ${rows.length} order untuk ${email}.`;
+
+    historyEmailWrap.innerHTML = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Produk</th>
+            <th>Paket</th>
+            <th>Harga</th>
+            <th>Status</th>
+            <th>Tanggal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.order_id}</td>
+              <td>${r.product_type}</td>
+              <td>${r.package_name}</td>
+              <td>Rp${(r.amount||0).toLocaleString("id-ID")}</td>
+              <td>${statusBadge(r.status)}</td>
+              <td>${r.created_at ? new Date(r.created_at).toLocaleString("id-ID") : "-"}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+  } catch (e) {
+    historyEmailInfo.textContent = "Error jaringan/server.";
+  }
+});
+
+// ===== ADMIN HISTORY (ALL) only if ?key= exists =====
+const adminShell = $("#adminShell");
+const historyInfo = $("#historyInfo");
+const historyTableWrap = $("#historyTableWrap");
+const refreshHistory = $("#refreshHistory");
+
+async function loadAdminHistory(){
+  if (!adminShell) return;
+
+  const key = new URLSearchParams(location.search).get("key") || "";
+  if (!key) {
+    adminShell.style.display = "none";
+    return;
+  }
+
+  adminShell.style.display = "block";
+  if (historyInfo) historyInfo.textContent = "Memuat history admin...";
+  if (historyTableWrap) historyTableWrap.innerHTML = "";
+
+  try{
+    const resp = await fetch(`/api/get-orders-all?key=${encodeURIComponent(key)}`);
+    const data = await resp.json().catch(() => ({}));
+
+    if(!resp.ok || !data.ok){
+      if (historyInfo) historyInfo.textContent = data.error || "Gagal load history admin.";
+      return;
+    }
+
+    const rows = data.data || [];
+    if (historyInfo) historyInfo.textContent = `Menampilkan ${rows.length} order terbaru (admin).`;
 
     if(!rows.length){
       if (historyTableWrap) historyTableWrap.innerHTML = "";
@@ -286,5 +358,5 @@ async function loadHistory(){
   }
 }
 
-refreshHistory?.addEventListener("click", loadHistory);
-loadHistory();
+refreshHistory?.addEventListener("click", loadAdminHistory);
+loadAdminHistory();
