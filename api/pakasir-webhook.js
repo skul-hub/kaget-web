@@ -1,3 +1,5 @@
+// api/pakasir-webhook.js
+
 async function readRawBody(req) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -11,7 +13,7 @@ function parseUrlEncoded(str) {
   return out;
 }
 
-function json(res, status, data) {
+function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(data));
@@ -20,7 +22,10 @@ function json(res, status, data) {
 async function sendTelegramWithButton(text, orderId) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return { ok: false, error: "Telegram env missing" };
+
+  if (!token || !chatId) {
+    return { ok: false, error: "Telegram env missing" };
+  }
 
   const resp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
@@ -43,46 +48,94 @@ async function sendTelegramWithButton(text, orderId) {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return json(res, 405, { ok: false, error: "Method not allowed" });
+  // ✅ biar kalau dibuka di browser keliatan "ready"
+  if (req.method === "GET") {
+    return sendJson(res, 200, {
+      ok: true,
+      msg: "Webhook ready. Waiting POST from Pakasir.",
+    });
+  }
+
+  if (req.method !== "POST") {
+    return sendJson(res, 405, { ok: false, error: "Method not allowed" });
+  }
 
   try {
+    // 1) Baca raw body & parse sesuai content-type
     const raw = await readRawBody(req);
     const ct = String(req.headers["content-type"] || "").toLowerCase();
 
     let body = {};
-    if (ct.includes("application/json")) body = raw ? JSON.parse(raw) : {};
-    else if (ct.includes("application/x-www-form-urlencoded")) body = parseUrlEncoded(raw || "");
-    else {
-      try { body = raw ? JSON.parse(raw) : {}; }
-      catch { body = parseUrlEncoded(raw || ""); }
+    if (ct.includes("application/json")) {
+      body = raw ? JSON.parse(raw) : {};
+    } else if (ct.includes("application/x-www-form-urlencoded")) {
+      body = parseUrlEncoded(raw || "");
+    } else {
+      // fallback
+      try {
+        body = raw ? JSON.parse(raw) : {};
+      } catch {
+        body = parseUrlEncoded(raw || "");
+      }
     }
 
-    const order_id = body.order_id || body.orderId;
-    const amount = body.amount || body.total;
-    const status = String(body.status || "").toLowerCase();
-    const project = body.project || body.project_slug || body.projectSlug;
-    const payment_method = body.payment_method || body.paymentMethod || "qris";
-    const completed_at = body.completed_at || body.completedAt || new Date().toISOString();
+    // 2) Normalize field (kadang beda naming)
+    const order_id =
+      body.order_id || body.orderId || body.orderID || body.orderid;
 
-    if (!order_id) return json(res, 400, { ok: false, error: "order_id missing" });
+    const amount =
+      body.amount || body.total || body.jumlah || body.price;
 
-    // kalau webhook ngirim status, tapi bukan completed, skip
-    if (status && status !== "completed") return json(res, 200, { ok: true, ignored: true, status });
+    const statusRaw = body.status || body.payment_status || body.state || "";
+    const status = String(statusRaw).toLowerCase();
 
-    // Update Supabase -> paid
+    const project =
+      body.project || body.project_slug || body.projectSlug || body.slug;
+
+    const payment_method =
+      body.payment_method || body.paymentMethod || body.method || "qris";
+
+    const completed_at =
+      body.completed_at || body.completedAt || body.paid_at || body.paidAt;
+
+    if (!order_id) {
+      return sendJson(res, 400, {
+        ok: false,
+        error: "order_id missing",
+        got: body,
+      });
+    }
+
+    // 3) Kalau status ada tapi bukan completed => ignore (anggap belum paid)
+    // (kalau Pakasir tidak kirim status, kita tetap proses sebagai paid)
+    if (status && status !== "completed" && status !== "paid" && status !== "success") {
+      return sendJson(res, 200, { ok: true, ignored: true, status });
+    }
+
+    // 4) Supabase env
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !supabaseKey) return json(res, 500, { ok: false, error: "Supabase env missing" });
+    if (!supabaseUrl || !supabaseKey) {
+      return sendJson(res, 500, { ok: false, error: "Supabase env missing" });
+    }
 
-    // Get order for detail notif
+    // 5) Ambil order untuk detail notif (optional)
     const getResp = await fetch(
       `${supabaseUrl}/rest/v1/orders?order_id=eq.${encodeURIComponent(order_id)}&select=*`,
-      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+      }
     );
+
     const orders = getResp.ok ? await getResp.json() : [];
     const order = orders?.[0];
 
-    // Patch to paid (idempotent)
+    // 6) Update order -> paid (idempotent)
+    const paidAt = completed_at || new Date().toISOString();
+
     await fetch(
       `${supabaseUrl}/rest/v1/orders?order_id=eq.${encodeURIComponent(order_id)}`,
       {
@@ -94,11 +147,12 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           status: "paid",
-          paid_at: completed_at,
+          paid_at: paidAt,
         }),
       }
     );
 
+    // 7) Compose telegram message
     const customer = order?.customer || {};
     const customerText =
       order?.product_type === "panel"
@@ -107,30 +161,49 @@ export default async function handler(req, res) {
           ? `• Email: ${customer.email || "-"}`
           : `• Phone: ${customer.phone || "-"}`;
 
+    const nominal =
+      amount ? `Rp${amount}` : (order?.amount ? `Rp${order.amount}` : "-");
+
     const msg = [
       "✅ <b>PEMBAYARAN BERHASIL - SKULLHOSTING</b>",
       "",
       `<b>Order ID:</b> ${order_id}`,
       `<b>Produk:</b> ${order?.product_type || "-"}`,
       `<b>Paket:</b> ${order?.package_name || "-"}`,
-      `<b>Nominal:</b> ${amount ? `Rp${amount}` : `Rp${order?.amount || "-"}`}`,
+      `<b>Nominal:</b> ${nominal}`,
+      `<b>Status:</b> paid`,
       `<b>Metode:</b> ${payment_method}`,
       project ? `<b>Project:</b> ${project}` : "",
       "",
       "<b>Data Customer:</b>",
       customerText,
       "",
-      `<b>Status:</b> paid`,
-      `<b>Waktu:</b> ${completed_at}`,
+      `<b>Waktu:</b> ${paidAt}`,
     ].filter(Boolean).join("\n");
 
     const tg = await sendTelegramWithButton(msg, order_id);
+
+    // 8) Response
     if (!tg.ok) {
-      return json(res, 200, { ok: true, warning: "telegram_failed", telegram: tg.data });
+      return sendJson(res, 200, {
+        ok: true,
+        warning: "telegram_failed",
+        order_id,
+        telegram: tg.data || tg.error,
+      });
     }
 
-    return json(res, 200, { ok: true });
+    return sendJson(res, 200, {
+      ok: true,
+      order_id,
+      updated: "paid",
+    });
+
   } catch (e) {
-    return json(res, 500, { ok: false, error: "Server error", detail: String(e?.message || e) });
+    return sendJson(res, 500, {
+      ok: false,
+      error: "Server error",
+      detail: String(e?.message || e),
+    });
   }
 }
