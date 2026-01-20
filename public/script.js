@@ -12,25 +12,25 @@ const DATA = {
       tag: "Panel"
     };
   }).concat([
-    { id:"panel-unlimited", name:"PAKET PANEL UNLIMITED", price:12000, ram:"UNLIMITED", cpu:"UNLIMITED", tag:"Best" }
+    { id: "panel-unlimited", name: "PAKET PANEL UNLIMITED", price: 12000, ram: "UNLIMITED", cpu: "UNLIMITED", tag: "Best" }
   ]),
   vps: [
-    { id:"vps-mini", name:"VPS MINI", price:15000, ram:"8GB", cpu:"4 vCPU", tag:"VPS" },
-    { id:"vps-standard", name:"VPS STANDARD", price:20000, ram:"16GB", cpu:"4 vCPU", tag:"VPS" },
-    { id:"vps-pro", name:"VPS PRO", price:25000, ram:"16GB", cpu:"8 vCPU", tag:"VPS PRO" },
+    { id: "vps-mini", name: "VPS MINI", price: 15000, ram: "8GB", cpu: "4 vCPU", tag: "VPS" },
+    { id: "vps-standard", name: "VPS STANDARD", price: 20000, ram: "16GB", cpu: "4 vCPU", tag: "VPS" },
+    { id: "vps-pro", name: "VPS PRO", price: 25000, ram: "16GB", cpu: "8 vCPU", tag: "VPS PRO" },
   ],
   bot: [
-    { id:"bot-sewa", name:"SEWA BOT WHATSAPP", price:20000, note:"Isi nomor telepon untuk aktivasi", tag:"Bot" }
+    { id: "bot-sewa", name: "SEWA BOT WHATSAPP", price: 20000, note: "Isi nomor telepon untuk aktivasi", tag: "Bot" }
   ]
 };
 
 const $ = (s) => document.querySelector(s);
 
-function rupiah(n){
-  return "Rp" + (Number(n)||0).toLocaleString("id-ID");
+function rupiah(n) {
+  return "Rp" + (Number(n) || 0).toLocaleString("id-ID");
 }
 
-function cardHtml(type, pkg){
+function cardHtml(type, pkg) {
   const list = type === "panel"
     ? `<ul class="ul">
         <li>RAM ${pkg.ram}</li>
@@ -68,7 +68,7 @@ function cardHtml(type, pkg){
   `;
 }
 
-function render(){
+function render() {
   const panelGrid = $("#panelGrid");
   const vpsGrid = $("#vpsGrid");
   const botGrid = $("#botGrid");
@@ -84,14 +84,14 @@ const nav = $("#nav");
 const navToggle = $("#navToggle");
 navToggle?.addEventListener("click", () => nav.classList.toggle("open"));
 
-const sections = ["home","panel","vps","bot","history","contact"]
+const sections = ["home", "panel", "vps", "bot", "history", "contact"]
   .map(id => document.getElementById(id))
   .filter(Boolean);
 
-function setActiveNav(){
+function setActiveNav() {
   const y = window.scrollY + 140;
   let current = "home";
-  for (const s of sections){
+  for (const s of sections) {
     if (s.offsetTop <= y) current = s.id;
   }
   document.querySelectorAll(".nav a").forEach(a => {
@@ -124,7 +124,7 @@ const sumPrice = $("#sumPrice");
 
 let selected = null;
 
-function openModal(type, pkg){
+function openModal(type, pkg) {
   selected = { type, pkg };
   if (errorBox) errorBox.textContent = "";
   form?.reset();
@@ -133,11 +133,11 @@ function openModal(type, pkg){
   rowEmail?.classList.add("hidden");
   rowPhone?.classList.add("hidden");
 
-  if(type === "panel"){
+  if (type === "panel") {
     rowUsername?.classList.remove("hidden");
     rowEmail?.classList.remove("hidden");
     if (modalSubtitle) modalSubtitle.textContent = "Isi Username Panel + Email aktif, lalu bayar QRIS otomatis.";
-  } else if(type === "vps"){
+  } else if (type === "vps") {
     rowEmail?.classList.remove("hidden");
     if (modalSubtitle) modalSubtitle.textContent = "Isi Email, lalu bayar QRIS otomatis.";
   } else {
@@ -153,7 +153,7 @@ function openModal(type, pkg){
   modal?.classList.remove("hidden");
 }
 
-function closeModal(){
+function closeModal() {
   overlay?.classList.add("hidden");
   modal?.classList.add("hidden");
   selected = null;
@@ -165,37 +165,37 @@ overlay?.addEventListener("click", closeModal);
 
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-buy='1']");
-  if(!btn) return;
+  if (!btn) return;
 
   const type = btn.getAttribute("data-type");
   const id = btn.getAttribute("data-id");
   const pkg = (DATA[type] || []).find(x => x.id === id);
-  if(!pkg) return;
+  if (!pkg) return;
 
   openModal(type, pkg);
 });
 
 form?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  if(!selected) return;
+  if (!selected) return;
 
   if (errorBox) errorBox.textContent = "";
   const fd = new FormData(form);
   const customer = {};
 
-  if(selected.type === "panel"){
+  if (selected.type === "panel") {
     customer.username = (fd.get("username") || "").trim();
     customer.email = (fd.get("email") || "").trim();
-  } else if(selected.type === "vps"){
+  } else if (selected.type === "vps") {
     customer.email = (fd.get("email") || "").trim();
   } else {
     customer.phone = (fd.get("phone") || "").trim();
   }
 
-  try{
+  try {
     const resp = await fetch("/api/create-payment", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         productType: selected.type,
         packageId: selected.pkg.id,
@@ -204,24 +204,24 @@ form?.addEventListener("submit", async (e) => {
     });
 
     const data = await resp.json().catch(() => ({}));
-    if(!resp.ok || !data.ok){
+    if (!resp.ok || !data.ok) {
       if (errorBox) errorBox.textContent = data.error || "Gagal membuat pembayaran.";
       return;
     }
 
     window.location.href = data.payment_url;
-  } catch(err){
+  } catch (err) {
     if (errorBox) errorBox.textContent = "Error jaringan / server. Coba lagi.";
   }
 });
 
 // ===== History Helpers =====
-function statusBadge(s){
+function statusBadge(s) {
   const st = String(s || "pending").toLowerCase();
   return `<span class="badge ${st}">${st}</span>`;
 }
 
-// ===== USER HISTORY by EMAIL =====
+// ===== USER HISTORY by EMAIL (TABLE SCROLL) =====
 const hisEmailOnly = $("#hisEmailOnly");
 const btnHistoryEmail = $("#btnHistoryEmail");
 const historyEmailInfo = $("#historyEmailInfo");
@@ -255,43 +255,45 @@ btnHistoryEmail?.addEventListener("click", async () => {
     historyEmailInfo.textContent = `Ditemukan ${rows.length} order untuk ${email}.`;
 
     historyEmailWrap.innerHTML = `
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Produk</th>
-            <th>Paket</th>
-            <th>Harga</th>
-            <th>Status</th>
-            <th>Tanggal</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => `
+      <div class="tableScroll">
+        <table class="table">
+          <thead>
             <tr>
-              <td>${r.order_id}</td>
-              <td>${r.product_type}</td>
-              <td>${r.package_name}</td>
-              <td>Rp${(r.amount||0).toLocaleString("id-ID")}</td>
-              <td>${statusBadge(r.status)}</td>
-              <td>${r.created_at ? new Date(r.created_at).toLocaleString("id-ID") : "-"}</td>
+              <th>Order ID</th>
+              <th>Produk</th>
+              <th>Paket</th>
+              <th>Harga</th>
+              <th>Status</th>
+              <th>Tanggal</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td>${r.order_id}</td>
+                <td>${r.product_type}</td>
+                <td>${r.package_name}</td>
+                <td>Rp${(r.amount || 0).toLocaleString("id-ID")}</td>
+                <td>${statusBadge(r.status)}</td>
+                <td>${r.created_at ? new Date(r.created_at).toLocaleString("id-ID") : "-"}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
     `;
   } catch (e) {
     historyEmailInfo.textContent = "Error jaringan/server.";
   }
 });
 
-// ===== ADMIN HISTORY (ALL) only if ?key= exists =====
+// ===== ADMIN HISTORY (ALL) only if ?key= exists (TABLE SCROLL) =====
 const adminShell = $("#adminShell");
 const historyInfo = $("#historyInfo");
 const historyTableWrap = $("#historyTableWrap");
 const refreshHistory = $("#refreshHistory");
 
-async function loadAdminHistory(){
+async function loadAdminHistory() {
   if (!adminShell) return;
 
   const key = new URLSearchParams(location.search).get("key") || "";
@@ -304,11 +306,11 @@ async function loadAdminHistory(){
   if (historyInfo) historyInfo.textContent = "Memuat history admin...";
   if (historyTableWrap) historyTableWrap.innerHTML = "";
 
-  try{
+  try {
     const resp = await fetch(`/api/get-orders-all?key=${encodeURIComponent(key)}`);
     const data = await resp.json().catch(() => ({}));
 
-    if(!resp.ok || !data.ok){
+    if (!resp.ok || !data.ok) {
       if (historyInfo) historyInfo.textContent = data.error || "Gagal load history admin.";
       return;
     }
@@ -316,13 +318,13 @@ async function loadAdminHistory(){
     const rows = data.data || [];
     if (historyInfo) historyInfo.textContent = `Menampilkan ${rows.length} order terbaru (admin).`;
 
-    if(!rows.length){
+    if (!rows.length) {
       if (historyTableWrap) historyTableWrap.innerHTML = "";
       return;
     }
 
-    if (historyTableWrap) {
-      historyTableWrap.innerHTML = `
+    historyTableWrap.innerHTML = `
+      <div class="tableScroll">
         <table class="table">
           <thead>
             <tr>
@@ -342,7 +344,7 @@ async function loadAdminHistory(){
                 <td>${r.order_id}</td>
                 <td>${r.product_type}</td>
                 <td>${r.package_name}</td>
-                <td>Rp${(r.amount||0).toLocaleString("id-ID")}</td>
+                <td>Rp${(r.amount || 0).toLocaleString("id-ID")}</td>
                 <td>${statusBadge(r.status)}</td>
                 <td>${r.created_at ? new Date(r.created_at).toLocaleString("id-ID") : "-"}</td>
                 <td>${r.paid_at ? new Date(r.paid_at).toLocaleString("id-ID") : "-"}</td>
@@ -351,9 +353,9 @@ async function loadAdminHistory(){
             `).join("")}
           </tbody>
         </table>
-      `;
-    }
-  }catch(e){
+      </div>
+    `;
+  } catch (e) {
     if (historyInfo) historyInfo.textContent = "Error jaringan/server.";
   }
 }
