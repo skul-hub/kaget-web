@@ -14,12 +14,14 @@ export default async function handler(req, res) {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const key = (url.searchParams.get("key") || "").trim();
 
+    // kalau ADMIN_KEY diset, wajib cocok
     if (adminKey && key !== adminKey) {
       return sendJson(res, 401, { ok: false, error: "Unauthorized (admin key salah)" });
     }
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
     if (!supabaseUrl || !supabaseKey) {
       return sendJson(res, 500, { ok: false, error: "Supabase env missing" });
     }
