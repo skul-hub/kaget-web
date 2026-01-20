@@ -80,7 +80,7 @@ function render(){
 }
 render();
 
-// Modal refs
+/* Modal */
 const overlay = $("#checkoutOverlay");
 const modal = $("#checkoutModal");
 const form = $("#checkoutForm");
@@ -150,6 +150,7 @@ document.addEventListener("click", (e) => {
   openModal(type, pkg);
 });
 
+/* Create Payment -> redirect Pakasir */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   if(!selected) return;
@@ -161,9 +162,9 @@ form.addEventListener("submit", async (e) => {
 
   if(selected.type === "panel"){
     customer.username = (fd.get("username") || "").trim();
-    customer.email = (fd.get("email") || "").trim();
+    customer.email = (fd.get("email") || "").trim().toLowerCase();
   } else if(selected.type === "vps"){
-    customer.email = (fd.get("email") || "").trim();
+    customer.email = (fd.get("email") || "").trim().toLowerCase();
   } else {
     customer.phone = (fd.get("phone") || "").trim();
   }
@@ -188,5 +189,86 @@ form.addEventListener("submit", async (e) => {
     window.location.href = data.payment_url;
   } catch(err){
     errorBox.textContent = "Error jaringan / server. Coba lagi.";
+  }
+});
+
+/* History */
+const btnHistory = document.getElementById("btnHistory");
+const hisEmail = document.getElementById("hisEmail");
+const hisUsername = document.getElementById("hisUsername");
+const hisPhone = document.getElementById("hisPhone");
+const historyResult = document.getElementById("historyResult");
+const historyTableWrap = document.getElementById("historyTableWrap");
+
+function statusBadge(s){
+  const st = String(s || "pending").toLowerCase();
+  return `<span class="badge ${st}">${st}</span>`;
+}
+
+btnHistory?.addEventListener("click", async () => {
+  historyResult.textContent = "";
+  historyTableWrap.innerHTML = "";
+
+  const email = (hisEmail.value || "").trim();
+  const username = (hisUsername.value || "").trim();
+  const phone = (hisPhone.value || "").trim();
+
+  if (!email && !username && !phone) {
+    historyResult.textContent = "Isi minimal salah satu: Email / Username / Nomor Telepon.";
+    return;
+  }
+
+  const qs = new URLSearchParams();
+  if (email) qs.set("email", email.toLowerCase());
+  if (username) qs.set("username", username);
+  if (phone) qs.set("phone", phone);
+
+  try {
+    const resp = await fetch(`/api/get-orders?${qs.toString()}`);
+    const data = await resp.json().catch(() => ({}));
+
+    if (!resp.ok || !data.ok) {
+      historyResult.textContent = data.error || "Gagal ambil history.";
+      return;
+    }
+
+    const rows = data.data || [];
+    if (!rows.length) {
+      historyResult.textContent = "Belum ada history ditemukan.";
+      return;
+    }
+
+    historyResult.textContent = `Ditemukan ${rows.length} order terakhir.`;
+
+    const table = `
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Produk</th>
+            <th>Paket</th>
+            <th>Harga</th>
+            <th>Status</th>
+            <th>Tanggal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr>
+              <td>${r.order_id}</td>
+              <td>${r.product_type}</td>
+              <td>${r.package_name}</td>
+              <td>Rp${(r.amount||0).toLocaleString("id-ID")}</td>
+              <td>${statusBadge(r.status)}</td>
+              <td>${new Date(r.created_at).toLocaleString("id-ID")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+    historyTableWrap.innerHTML = table;
+  } catch (e) {
+    historyResult.textContent = "Error jaringan/server.";
   }
 });
