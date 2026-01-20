@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKULLHOSTING</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">SKULLHOSTING</div>
+    <nav class="links">
+      <a href="#panel">Panel</a>
+      <a href="#vps">VPS</a>
+      <a href="#bot">Sewa Bot</a>
+      <a href="#contact">Kontak</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:80px;">
+  <section id="panel" class="section">
+    <h2>Paket Panel Biasa</h2>
+    <p class="muted">GARANSI 30 HARI • SUPPORT 24/7 • SERVER PRIVATE</p>
+    <div id="panelGrid" class="grid"></div>
+  </section>
+
+  <section id="vps" class="section">
+    <h2>Paket VPS Server</h2>
+    <p class="muted">Pembelian VPS: isi email saja lalu QRIS otomatis</p>
+    <div id="vpsGrid" class="grid"></div>
+  </section>
+
+  <section id="bot" class="section">
+    <h2>Sewa Bot</h2>
+    <p class="muted">Sewa bot: isi nomor telepon saja lalu QRIS otomatis</p>
+    <div id="botGrid" class="grid"></div>
+  </section>
+
+  <section id="contact" class="section">
+    <h2>Kontak</h2>
+    <div class="contactRow">
+      <a class="btn" target="_blank" href="https://wa.me/6285692038079">WhatsApp</a>
+      <a class="btn" target="_blank" href="https://t.me/skullhosting">Telegram</a>
+    </div>
+  </section>
+</main>
+
+<!-- Checkout Modal -->
+<div id="checkoutOverlay" class="overlay hidden"></div>
+
+<div id="checkoutModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modalHead">
+    <div>
+      <div class="modalTitle" id="modalTitle">Checkout</div>
+      <div class="muted" id="modalSubtitle"></div>
+    </div>
+    <button class="iconBtn" id="closeModal" type="button">✕</button>
+  </div>
+
+  <form id="checkoutForm" class="modalBody">
+    <div class="row hidden" id="rowUsername">
+      <label>Username Panel</label>
+      <input type="text" name="username" placeholder="contoh: skulluser" />
+    </div>
+
+    <div class="row hidden" id="rowEmail">
+      <label>Email Aktif</label>
+      <input type="email" name="email" placeholder="contoh: emailkamu@gmail.com" />
+    </div>
+
+    <div class="row hidden" id="rowPhone">
+      <label>Nomor Telepon</label>
+      <input type="text" name="phone" placeholder="contoh: 628xxxxxxxxxx" />
+    </div>
+
+    <div class="summary">
+      <div><b>Paket:</b> <span id="sumPackage">-</span></div>
+      <div><b>Harga:</b> <span id="sumPrice">-</span></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn ghost" id="cancelBtn">Batal</button>
+      <button type="submit" class="btn primary" id="payBtn">Lanjut Bayar (QRIS)</button>
+    </div>
+
+    <div class="muted small" id="errorBox" style="margin-top:10px;color:#ffb4b4;"></div>
+  </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
