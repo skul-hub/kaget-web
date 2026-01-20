@@ -69,20 +69,27 @@ function cardHtml(type, pkg){
 }
 
 function render(){
-  $("#panelGrid").innerHTML = DATA.panel.map(p => cardHtml("panel", p)).join("");
-  $("#vpsGrid").innerHTML = DATA.vps.map(p => cardHtml("vps", p)).join("");
-  $("#botGrid").innerHTML = DATA.bot.map(p => cardHtml("bot", p)).join("");
+  const panelGrid = $("#panelGrid");
+  const vpsGrid = $("#vpsGrid");
+  const botGrid = $("#botGrid");
+
+  if (panelGrid) panelGrid.innerHTML = DATA.panel.map(p => cardHtml("panel", p)).join("");
+  if (vpsGrid) vpsGrid.innerHTML = DATA.vps.map(p => cardHtml("vps", p)).join("");
+  if (botGrid) botGrid.innerHTML = DATA.bot.map(p => cardHtml("bot", p)).join("");
 }
 render();
 
-// Navbar active + mobile
+// ===== Navbar active + mobile =====
 const nav = $("#nav");
 const navToggle = $("#navToggle");
 navToggle?.addEventListener("click", () => nav.classList.toggle("open"));
 
-const sections = ["home","panel","vps","bot","history","contact"].map(id => document.getElementById(id)).filter(Boolean);
+const sections = ["home","panel","vps","bot","history","contact"]
+  .map(id => document.getElementById(id))
+  .filter(Boolean);
+
 function setActiveNav(){
-  const y = window.scrollY + 120;
+  const y = window.scrollY + 140;
   let current = "home";
   for (const s of sections){
     if (s.offsetTop <= y) current = s.id;
@@ -95,9 +102,10 @@ function setActiveNav(){
 window.addEventListener("scroll", setActiveNav);
 setActiveNav();
 
-document.getElementById("year").textContent = String(new Date().getFullYear());
+const yearEl = $("#year");
+if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-// Modal logic
+// ===== Modal Checkout =====
 const overlay = $("#checkoutOverlay");
 const modal = $("#checkoutModal");
 const form = $("#checkoutForm");
@@ -118,42 +126,42 @@ let selected = null;
 
 function openModal(type, pkg){
   selected = { type, pkg };
-  errorBox.textContent = "";
-  form.reset();
+  if (errorBox) errorBox.textContent = "";
+  form?.reset();
 
-  rowUsername.classList.add("hidden");
-  rowEmail.classList.add("hidden");
-  rowPhone.classList.add("hidden");
+  rowUsername?.classList.add("hidden");
+  rowEmail?.classList.add("hidden");
+  rowPhone?.classList.add("hidden");
 
   if(type === "panel"){
-    rowUsername.classList.remove("hidden");
-    rowEmail.classList.remove("hidden");
-    modalSubtitle.textContent = "Isi Username Panel + Email aktif, lalu bayar QRIS otomatis.";
+    rowUsername?.classList.remove("hidden");
+    rowEmail?.classList.remove("hidden");
+    if (modalSubtitle) modalSubtitle.textContent = "Isi Username Panel + Email aktif, lalu bayar QRIS otomatis.";
   } else if(type === "vps"){
-    rowEmail.classList.remove("hidden");
-    modalSubtitle.textContent = "Isi Email, lalu bayar QRIS otomatis.";
+    rowEmail?.classList.remove("hidden");
+    if (modalSubtitle) modalSubtitle.textContent = "Isi Email, lalu bayar QRIS otomatis.";
   } else {
-    rowPhone.classList.remove("hidden");
-    modalSubtitle.textContent = "Isi Nomor Telepon, lalu bayar QRIS otomatis.";
+    rowPhone?.classList.remove("hidden");
+    if (modalSubtitle) modalSubtitle.textContent = "Isi Nomor Telepon, lalu bayar QRIS otomatis.";
   }
 
-  modalTitle.textContent = `Checkout ${type.toUpperCase()}`;
-  sumPackage.textContent = pkg.name;
-  sumPrice.textContent = `${rupiah(pkg.price)}/bulan`;
+  if (modalTitle) modalTitle.textContent = `Checkout ${type.toUpperCase()}`;
+  if (sumPackage) sumPackage.textContent = pkg.name;
+  if (sumPrice) sumPrice.textContent = `${rupiah(pkg.price)}/bulan`;
 
-  overlay.classList.remove("hidden");
-  modal.classList.remove("hidden");
+  overlay?.classList.remove("hidden");
+  modal?.classList.remove("hidden");
 }
 
 function closeModal(){
-  overlay.classList.add("hidden");
-  modal.classList.add("hidden");
+  overlay?.classList.add("hidden");
+  modal?.classList.add("hidden");
   selected = null;
 }
 
-closeModalBtn.addEventListener("click", closeModal);
-cancelBtn.addEventListener("click", closeModal);
-overlay.addEventListener("click", closeModal);
+closeModalBtn?.addEventListener("click", closeModal);
+cancelBtn?.addEventListener("click", closeModal);
+overlay?.addEventListener("click", closeModal);
 
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-buy='1']");
@@ -167,11 +175,11 @@ document.addEventListener("click", (e) => {
   openModal(type, pkg);
 });
 
-form.addEventListener("submit", async (e) => {
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   if(!selected) return;
 
-  errorBox.textContent = "";
+  if (errorBox) errorBox.textContent = "";
   const fd = new FormData(form);
   const customer = {};
 
@@ -197,17 +205,17 @@ form.addEventListener("submit", async (e) => {
 
     const data = await resp.json().catch(() => ({}));
     if(!resp.ok || !data.ok){
-      errorBox.textContent = data.error || "Gagal membuat pembayaran.";
+      if (errorBox) errorBox.textContent = data.error || "Gagal membuat pembayaran.";
       return;
     }
 
     window.location.href = data.payment_url;
   } catch(err){
-    errorBox.textContent = "Error jaringan / server. Coba lagi.";
+    if (errorBox) errorBox.textContent = "Error jaringan / server. Coba lagi.";
   }
 });
 
-// ===== History (admin view, show all) =====
+// ===== History (show all, admin view) =====
 const historyInfo = $("#historyInfo");
 const historyTableWrap = $("#historyTableWrap");
 const refreshHistory = $("#refreshHistory");
@@ -218,58 +226,63 @@ function statusBadge(s){
 }
 
 async function loadHistory(){
-  historyInfo.textContent = "Memuat history...";
-  historyTableWrap.innerHTML = "";
+  if (historyInfo) historyInfo.textContent = "Memuat history...";
+  if (historyTableWrap) historyTableWrap.innerHTML = "";
 
   try{
-    const resp = await fetch("/api/get-orders-all");
+    const key = new URLSearchParams(location.search).get("key") || "";
+    const url = `/api/get-orders-all${key ? `?key=${encodeURIComponent(key)}` : ""}`;
+
+    const resp = await fetch(url);
     const data = await resp.json().catch(() => ({}));
 
     if(!resp.ok || !data.ok){
-      historyInfo.textContent = data.error || "Gagal load history.";
+      if (historyInfo) historyInfo.textContent = data.error || "Gagal load history.";
       return;
     }
 
     const rows = data.data || [];
-    historyInfo.textContent = `Menampilkan ${rows.length} order terbaru.`;
+    if (historyInfo) historyInfo.textContent = `Menampilkan ${rows.length} order terbaru.`;
 
     if(!rows.length){
-      historyTableWrap.innerHTML = "";
+      if (historyTableWrap) historyTableWrap.innerHTML = "";
       return;
     }
 
-    historyTableWrap.innerHTML = `
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Produk</th>
-            <th>Paket</th>
-            <th>Harga</th>
-            <th>Status</th>
-            <th>Dibuat</th>
-            <th>Dibayar</th>
-            <th>Selesai</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => `
+    if (historyTableWrap) {
+      historyTableWrap.innerHTML = `
+        <table class="table">
+          <thead>
             <tr>
-              <td>${r.order_id}</td>
-              <td>${r.product_type}</td>
-              <td>${r.package_name}</td>
-              <td>Rp${(r.amount||0).toLocaleString("id-ID")}</td>
-              <td>${statusBadge(r.status)}</td>
-              <td>${r.created_at ? new Date(r.created_at).toLocaleString("id-ID") : "-"}</td>
-              <td>${r.paid_at ? new Date(r.paid_at).toLocaleString("id-ID") : "-"}</td>
-              <td>${r.done_at ? new Date(r.done_at).toLocaleString("id-ID") : "-"}</td>
+              <th>Order ID</th>
+              <th>Produk</th>
+              <th>Paket</th>
+              <th>Harga</th>
+              <th>Status</th>
+              <th>Dibuat</th>
+              <th>Dibayar</th>
+              <th>Selesai</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td>${r.order_id}</td>
+                <td>${r.product_type}</td>
+                <td>${r.package_name}</td>
+                <td>Rp${(r.amount||0).toLocaleString("id-ID")}</td>
+                <td>${statusBadge(r.status)}</td>
+                <td>${r.created_at ? new Date(r.created_at).toLocaleString("id-ID") : "-"}</td>
+                <td>${r.paid_at ? new Date(r.paid_at).toLocaleString("id-ID") : "-"}</td>
+                <td>${r.done_at ? new Date(r.done_at).toLocaleString("id-ID") : "-"}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
   }catch(e){
-    historyInfo.textContent = "Error jaringan/server.";
+    if (historyInfo) historyInfo.textContent = "Error jaringan/server.";
   }
 }
 
