@@ -5,7 +5,6 @@
   <link rel="icon" href="img/logo.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SKULLHOSTING | Hosting & VPS</title>
-  
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="style.css"/>
@@ -20,16 +19,13 @@
         <div class="bolt-icon"><i class="fas fa-bolt"></i></div>
         <span>SKULLHOSTING</span>
       </a>
-
       <nav class="nav" id="nav">
         <a href="#home">Home</a>
         <a href="#panel">Panel</a>
         <a href="#vps">VPS</a>
         <a href="#bot">Sewa Bot</a>
         <a href="#history">History</a>
-        <a href="#contact">Kontak</a>
       </nav>
-
       <button class="navToggle" id="navToggle">☰</button>
     </div>
   </header>
@@ -37,31 +33,27 @@
   <main class="wrap" id="home">
     <section class="hero">
       <div class="heroContent">
-        <h1>Panel Hosting, VPS & <br><span class="gradient-text">Sewa Bot Terbaik</span></h1>
-        <p class="hero-desc">
-          Nikmati pengalaman terbaik dengan panel hosting modern, VPS berkualitas tinggi, dan sewa bot canggih. Server stabil 24/7 dengan performa maksimal.
-        </p>
-
+        <h1>Panel Hosting & <br><span class="gradient-text">Sewa Bot Terbaik</span></h1>
+        <p class="hero-desc">Server stabil 24/7 dengan performa maksimal untuk kebutuhan bot dan aplikasi Anda.</p>
         <div class="heroCtas">
-          <a class="btn-hero panel" href="#panel"><i class="fas fa-server"></i> Panel Hosting</a>
-          <a class="btn-hero vps" href="#vps"><i class="fas fa-cloud"></i> Virtual Private Server</a>
-          <a class="btn-hero bot" href="#bot"><i class="fas fa-robot"></i> Sewa Bot</a>
+          <a class="btn-hero panel" href="#panel"><i class="fas fa-server"></i> Panel</a>
+          <a class="btn-hero vps" href="#vps"><i class="fas fa-cloud"></i> VPS</a>
         </div>
       </div>
     </section>
 
     <section id="panel" class="section">
       <div class="sectionHead">
-        <h2>Paket Panel Biasa</h2>
-        <p class="muted">Garansi 30 hari • Support 24/7 • Server Private</p>
+        <h2>Paket Panel</h2>
+        <p class="muted">Server Private • Support 24/7</p>
       </div>
       <div id="panelGrid" class="grid"></div>
     </section>
 
     <section id="vps" class="section">
       <div class="sectionHead">
-        <h2>Paket VPS Server</h2>
-        <p class="muted">Kualitas Server Premium untuk Bisnis Anda</p>
+        <h2>Paket VPS</h2>
+        <p class="muted">Kualitas Premium High Performance</p>
       </div>
       <div id="vpsGrid" class="grid"></div>
     </section>
@@ -69,22 +61,21 @@
     <section id="bot" class="section">
       <div class="sectionHead">
         <h2>Sewa Bot</h2>
-        <p class="muted">Bot WhatsApp Aktif 24 Jam Non-Stop</p>
+        <p class="muted">Aktif 24 Jam Non-Stop</p>
       </div>
       <div id="botGrid" class="grid"></div>
     </section>
 
     <section id="history" class="section">
-       <div class="sectionHead">
-          <h2>History Pembelian</h2>
-       </div>
-       <div class="cardShell history-container">
-          <div class="historyBox">
-            <input id="hisEmailOnly" type="email" placeholder="Masukkan email kamu..." />
-            <button class="btn primary" id="btnHistoryEmail">Cek History</button>
-          </div>
-          <div id="historyEmailWrap"></div>
-       </div>
+      <div class="sectionHead"><h2>History Pembelian</h2></div>
+      <div class="cardShell">
+        <div class="historyBox">
+          <input id="hisEmailOnly" type="email" placeholder="Masukkan email kamu..." />
+          <button class="btn primary" id="btnHistoryEmail">Cek History</button>
+        </div>
+        <p id="historyEmailInfo" class="muted small" style="margin-top:10px"></p>
+        <div id="historyEmailWrap"></div>
+      </div>
     </section>
 
     <footer class="footer">
@@ -99,15 +90,19 @@
       <button class="iconBtn" id="closeModal">✕</button>
     </div>
     <form id="checkoutForm" class="modalBody">
-      <div class="row hidden" id="rowUsername"><label>Username</label><input type="text" name="username"></div>
-      <div class="row hidden" id="rowEmail"><label>Email</label><input type="email" name="email"></div>
-      <div class="row hidden" id="rowPhone"><label>WhatsApp</label><input type="text" name="phone"></div>
+      <div id="errorBox" style="color: #ff4d4d; font-size: 13px; margin-bottom: 10px;"></div>
+      <div class="row hidden" id="rowUsername"><label>Username</label><input type="text" name="username" placeholder="Username panel"></div>
+      <div class="row hidden" id="rowEmail"><label>Email</label><input type="email" name="email" placeholder="Email aktif"></div>
+      <div class="row hidden" id="rowPhone"><label>WhatsApp</label><input type="text" name="phone" placeholder="Contoh: 0812xxx"></div>
+      
       <div class="summary">
-        <div id="sumPackage"></div>
-        <div id="sumPrice" class="gradient-text font-bold"></div>
+        <div id="sumPackage" style="font-weight: bold;"></div>
+        <div id="sumPrice" class="gradient-text" style="font-size: 1.2rem; font-weight: 800;"></div>
       </div>
+      
       <div class="actions">
-        <button type="submit" class="btn primary full">Bayar Sekarang (QRIS)</button>
+        <button type="button" class="btn ghost" id="cancelBtn">Batal</button>
+        <button type="submit" class="btn primary full">Bayar Sekarang</button>
       </div>
     </form>
   </div>
